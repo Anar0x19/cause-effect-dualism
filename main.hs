@@ -5,24 +5,21 @@ import qualified Data.Set as Set
 type Entity = String
 type Relation = (Entity, Entity)
 
--- Структура данных для системы
 data CausalDualSystem = CausalDualSystem
   { causalRelations :: Set Relation
   , dualRelations   :: Set Relation
   } deriving (Show)
 
--- Функция для создания пустой системы
 emptySystem :: CausalDualSystem
 emptySystem = CausalDualSystem Set.empty Set.empty
 
--- Добавление причинно-следственной связи
+-- причинно-следственность 
 addCausalRelation :: Entity -> Entity -> CausalDualSystem -> CausalDualSystem
 addCausalRelation a b system
   | a == b = system -- Исключаение рефлексивных связей
   | (b, a) `Set.member` causalRelations system = error "Антисимметрия нарушена"
   | otherwise = system { causalRelations = Set.insert (a, b) (causalRelations system) }
 
--- Проверка транзитивности причинно-следственных связей
 checkCausality :: CausalDualSystem -> Bool
 checkCausality system =
   all (\(a, b) -> all (\(b', c) -> b == b' ==> Set.member (a, c) (causalRelations system))
@@ -31,7 +28,7 @@ checkCausality system =
   where
     (==>) x y = not x || y -- Импликация
 
--- Добавление дуалистической связи
+--  дуалистическая связь
 addDualRelation :: Entity -> Entity -> CausalDualSystem -> CausalDualSystem
 addDualRelation a b system
   | a == b = system
